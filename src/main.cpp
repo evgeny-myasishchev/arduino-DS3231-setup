@@ -1,16 +1,12 @@
 #include "Arduino.h"
-#include "MutableValue.h"
-
-void switchOn();
 
 void setup() {
-    pinMode(8, OUTPUT);
-    digitalWrite(8, LOW);
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
-    // delay(1000);
-    // digitalWrite(8, HIGH);
-    // delay(1000);
-    // digitalWrite(8, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
 }
