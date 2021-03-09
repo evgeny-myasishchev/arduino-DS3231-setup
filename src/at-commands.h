@@ -57,6 +57,27 @@ ParsedNumber parseNumber(const char *buffer, const size_t length)
     return ParsedNumber(result, valid);
 };
 
+void writeNow(at::Responder *resp, DateTime now)
+{
+    resp->write("HUMAN=");
+    resp->write(now.year());
+    resp->write("-");
+    resp->write(now.month());
+    resp->write("-");
+    resp->write(now.day());
+    resp->write(" ");
+    resp->write(now.hour());
+    resp->write(":");
+    resp->write(now.minute());
+    resp->write(":");
+    resp->write(now.second());
+    resp->writeLine("");
+    resp->write("UNIX=");
+    resp->write(now.unixtime());
+    resp->writeLine("");
+    resp->writeOk();
+}
+
 class ATTime : public at::Handler
 {
 private:
@@ -89,23 +110,62 @@ public:
             _clock->enableOscillator(true, true, 3);
         }
         const auto now = _rtcLib.now();
-        resp->write("HUMAM=");
-        resp->write(now.year());
-        resp->write("-");
-        resp->write(now.month());
-        resp->write("-");
-        resp->write(now.day());
-        resp->write(" ");
-        resp->write(now.hour());
-        resp->write(":");
-        resp->write(now.minute());
-        resp->write(":");
-        resp->write(now.second());
+        writeNow(resp, now);
+    }
+};
+
+class ATZone : public at::Handler
+{
+private:
+    DS3231 *_clock;
+    RTClib _rtcLib;
+
+public:
+    ATZone(DS3231 *clk) : at::Handler("AT+ZONE")
+    {
+        _clock = clk;
+    };
+    void Handle(at::Input input, at::Responder *resp)
+    {
+        if (input.length != 5)
+        {
+            return resp->writeError();
+        }
+        int sign = 1;
+        if (input.body[0] == (char)*"-")
+        {
+            sign = -1;
+        }
+        const auto offsetHours = parseNumber(input.body + 1, 2);
+        if (!offsetHours.valid)
+        {
+            resp->writeError();
+            return;
+        }
+        const auto offsetMinutes = parseNumber(input.body + 3, 2);
+        if (!offsetHours.valid)
+        {
+            resp->writeError();
+            return;
+        }
+
+        resp->write("OFFSET HOURS:");
+        resp->write(offsetHours.value);
         resp->writeLine("");
-        resp->write("UNIX=");
-        resp->write(now.unixtime());
+
+        resp->write("OFFSET MINUTES:");
+        resp->write(offsetMinutes.value);
         resp->writeLine("");
-        resp->writeOk();
+        resp->write("SIGN:");
+        resp->write(sign);
+        resp->writeLine("");
+
+        auto now = _rtcLib.now();
+        _clock->setHour(now.hour() + offsetHours.value * sign);
+        _clock->setMinute(now.minute() + offsetMinutes.value * sign);
+
+        now = _rtcLib.now();
+        writeNow(resp, now);
     }
 };
 

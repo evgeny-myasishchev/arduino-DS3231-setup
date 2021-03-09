@@ -10,14 +10,16 @@ at::Engine atEngine(&Serial);
 // AT commands
 auto atPing = ATPing();
 auto atTime = ATTime(&clock);
+auto atZone = ATZone(&clock);
 
 void setup()
 {
     Wire.begin();
-    Serial.begin(115200);
+    Serial.begin(9600);
 
     atEngine.addCommandHandler(&atPing);
     atEngine.addCommandHandler(&atTime);
+    atEngine.addCommandHandler(&atZone);
     atEngine.setup();
 }
 
