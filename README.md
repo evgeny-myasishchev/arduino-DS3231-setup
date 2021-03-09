@@ -1,5 +1,9 @@
 # Arduino sketch to setup RTC clock (DS3231)
 
+This repo can be used to setup RTC clock (DS3231). The sketch includes a simple AT based serial communication protocol that can be used to set the time.
+
+The solution can be embedded into existing projects if serial line is not very busy and enough flash space is available. In the other case just flash it once, setup the clock and then flash your project.
+
 ## Usage
 
 Upload the sketch:
