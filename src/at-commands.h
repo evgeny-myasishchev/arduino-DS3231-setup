@@ -100,7 +100,7 @@ public:
                 return;
             }
             const auto now = DateTime(number.value);
-            _clock->enableOscillator(false, false, 3);
+            _clock->enableOscillator(true, false, 3);
             _clock->setYear(now.year() - 2000); // last two digits only starting from 2k
             _clock->setMonth(now.month());
             _clock->setDate(now.day());
