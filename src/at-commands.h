@@ -107,7 +107,6 @@ public:
             _clock->setHour(now.hour());
             _clock->setMinute(now.minute());
             _clock->setSecond(now.second());
-            _clock->enableOscillator(true, true, 3);
         }
         const auto now = _rtcLib.now();
         writeNow(resp, now);
